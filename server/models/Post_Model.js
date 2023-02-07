@@ -1,12 +1,8 @@
 //Using common JS module
 const mongoose = require('mongoose');
 
-const postSchma = new mongoose.Schema({
-    caption: {
-        type: String,
-        require: true
-    },
-
+const PostSchema = new mongoose.Schema({
+    caption: String,
     image: {
         public_id: String,
         url: String
@@ -14,7 +10,7 @@ const postSchma = new mongoose.Schema({
 
     owner: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: User
+        ref: "User"
     },
 
     createdAt: {
@@ -24,13 +20,13 @@ const postSchma = new mongoose.Schema({
 
     likes: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: User
+        ref: "User"
     }],
 
     comments: [{
         user: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: User
+            ref: "User"
         },
         comment: {
             type: String,
@@ -40,7 +36,7 @@ const postSchma = new mongoose.Schema({
 }, { timestamps: true});
 
 //create model for schema
-const postModel = mongoose.model("Post",postSchma)
+const PostModel = mongoose.model("Post", PostSchema)
 
 //export the model
-module.exports = postModel
+module.exports = PostModel

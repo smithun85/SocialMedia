@@ -1,33 +1,68 @@
 //Using ES6 module
-import mongoose, { Schema } from "mongoose";
+const mongoose = require('mongoose');  
 
-const userSchema = new Schema({
-    name: {
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken')
+
+const UserSchema = new mongoose.Schema({
+    name:{
         type:String,
-        required:[true,"Please enter a name"]
+        required:[true," Please enter the name"]
     },
-
-    email: {
+    avatar:{
+        public_id:String,
+        url:String
+    },     
+    email:{
         type:String,
-        required:[true,"Please enter an email"],
-        unique:[true, "Email already exist"]
+        required:[true,"Please enter the email id"],
+        unique:[true,"email already exist"]
     },
+    password:{
+        type: String,
+        required:[true,"please enter password"],
+        minlength:[6,"Password must be 6 character"],
+        select:false   //we access all userData except then password
+    },               //when we have to require password to find() then use=> findOne({...}).select("+password")
+    posts:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"Post"
+        }
+    ],
+    followers:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"Post"
+        }
+    ],
+    following:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"Post"
+        }
+    ],
+     
+},{ timestamps:true });
 
-    password: {
-        type:String,
-        required:[true,"Please enter password"],
-        minlength:[true,"Password must be atleast 6 characters"],
-        select:false
-    },
+//encrypted password
+UserSchema.pre("save", async function(next) {
+    const salt = await bcrypt.genSalt(10);
+    const hashedpassword = await bcrypt.hash(this.password, salt);
+    this.password = hashedpassword
+    next()
+});
 
-    posts:[{
-        type:Schema.Types.ObjectId,
-        ref:Post
-    }]
-})
+//compare password b/w user data & in dataBase: =>CREATE CUSTOM METHOD-1
+UserSchema.method("matchPassword", async function(password) { //this password is given by user in front-end
+    return await bcrypt.compare(password, this.password)
+}); 
 
-//Create Model for schema
-const userModel = mongoose.model("User", userSchema)
+//Generate token: =>CREATE CUSTOM METHOD-2
+UserSchema.methods.generateToken = async function() {
+const token = jwt.sign({ user_id:this._id }, procee.env.JWT_SECRET, { expiresIn:"60days" })
+return token;
+} ;
 
-//export the model
-module.exports = userModel
+const UserModel = mongoose.model("User",UserSchema);
+module.exports =  UserModel

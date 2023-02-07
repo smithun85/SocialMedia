@@ -4,16 +4,20 @@ const express = require('express')
 const app = express();
 
 //Parse request body as JSON
-app.use(express.urlencoded({
-    extended:true
-}));
 app.use(express.json());
+app.use(express.urlencoded({ extended:true }));
 
-//Make public static folder
-app.use(express.static('public'));
 
-//Routes
+// //Make public static folder
+// app.use(express.static('public'));
 
+//importing Routes
+const Post_Routes = require('./routes/Post_Routes')
+const User_Routes = require('./routes/User_Routes')
+
+// //using Routes
+app.use("/api/posts", Post_Routes)    //http://localhost:5000/api/posts/upload
+app.use("/users",User_Routes)          //http://localhost:5000/users/register
 
 
 module.exports = app
