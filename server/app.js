@@ -7,6 +7,10 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended:true }));
 
+//use for req.cookies
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
 
 // //Make public static folder
 // app.use(express.static('public'));

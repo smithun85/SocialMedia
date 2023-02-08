@@ -51,9 +51,12 @@ const login = async (req, res) => {
         }
 
         //Token generate: using custom method as generateToken()=>define in userSchema
-        const token = await existUser.generateToken()
-
-        res.status(200).cookie("token", token).json({
+        const token = await existUser.generateToken();
+        const options = {
+            expires: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000 ),
+            httpOnly:true
+        } 
+        res.status(200).cookie("token", token, options).json({
             message:"login successfully",
             existUser,
             token

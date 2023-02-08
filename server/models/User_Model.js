@@ -60,7 +60,7 @@ UserSchema.method("matchPassword", async function(password) { //this password is
 
 //Generate token: =>CREATE CUSTOM METHOD-2
 UserSchema.methods.generateToken = async function() {
-const token = jwt.sign({ user_id:this._id }, procee.env.JWT_SECRET, { expiresIn:"60days" })
+const token = jwt.sign({ user_id:this._id }, process.env.JWT_SECRET, { expiresIn:"60days" })
 return token;
 } ;
 
