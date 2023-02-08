@@ -13,11 +13,28 @@ const register = async (req,res) => {
             })
         }
 
-        user = await UserModel.create({name, email, password, avatar:{ public_id: "sample id", url:"smple Url"}})
-        res.status(200).json({
-            success:true,
-            user
+        user = await UserModel.create({
+            name, 
+            email, 
+            password,
+            avatar:{
+                public_id: "sample id", 
+                url:"smple Url"
+            }
         })
+
+        //Token generate: using custom method as generateToken()=>define in userSchema
+        const token = await user.generateToken();
+        const options = {
+            expires: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000 ),
+            httpOnly:true
+        } 
+        res.status(200).cookie("token", token, options).json({
+            message:"Register successfully",
+            user,
+            token
+        })
+
     }catch (err){
         res.status(500).json({
             success:false,

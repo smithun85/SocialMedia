@@ -40,11 +40,26 @@ const createPost = async (req, res) => {
 const deletePost = async (req, res) => {
 
   try{
-    const post = await PostModel.findById(_id) 
-    const user = await UserModel.findById(req.user._id)
+    const post = await PostModel.findById(req.params.post_id) 
+
     if(post.owner.toString() !== req.user._id.toString()){
-      await PostModel.findByIdAndDelete()
+      return res.status(401).json({
+        message:"user not authorized..."
+      })
     }
+
+    // await PostModel.findByIdAndDelete(req.params.post_id)
+    await post.remove();
+
+    const user = await UserModel.findById(req.user._id).select("+password");
+    const index = user.posts.indexOf(post._id)
+     user.posts.splice(index,1);
+     await user.save()
+
+    res.status(201).json({
+      message:"post deleted"
+    })
+
   }catch(err){
     res.status(500).json({
       message:err.message,
@@ -66,8 +81,7 @@ const likeAndUnlikePost = async (req, res) => {
     
     //unlike the post
     if(post.likes.includes(req.user._id)){  //includes(_id); =>means id already exists, that means user already like in same post
-      const index = post.likes.indexOf(req.user._id)  //find out the index of user in post.likes model
-      
+      const index = post.likes.indexOf(req.user._id)  //find out the index of user in post.likes model 
       post.likes.splice(index,1) 
       await post.save()                    //remove 1 element from position of index value
 
@@ -83,8 +97,6 @@ const likeAndUnlikePost = async (req, res) => {
         message: "post liked"
       })
     } 
-
-    
 
   }catch (err){
     res.status(501).json({
@@ -105,4 +117,9 @@ const getAllPost = async(req, res) => {
     }
 }
 
-module.exports = { createPost ,deletePost, getAllPost, likeAndUnlikePost};
+module.exports = { 
+  createPost,
+  deletePost, 
+  getAllPost, 
+  likeAndUnlikePost
+};

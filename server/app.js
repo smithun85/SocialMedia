@@ -21,7 +21,7 @@ const User_Routes = require('./routes/User_Routes')
 
 // //using Routes
 app.use("/api/posts", Post_Routes)    //http://localhost:5000/api/posts/upload
-app.use("/users",User_Routes)          //http://localhost:5000/users/register
+app.use("/users",User_Routes)          //http://localhost:5000/users/register...
 
 
 module.exports = app
