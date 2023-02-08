@@ -88,4 +88,33 @@ const login = async (req, res) => {
     }
 }
 
-module.exports = { register, login }
+
+const logout = async (req, res) => {
+    try{
+
+        res.status(201).cookie("token", null, {expires:new Date(Date.now()),httpOnly:true}).json({
+            message:"Successfully logged out"
+        })
+    }catch(err){
+        res.status(501).json({
+            message:err.message,
+            status:"Something wrong"
+        })
+    }
+}
+
+
+const updatePassword = async (req, res) => {
+    try{
+
+        const user = await UserModel.findById(req.user._id)
+        const {oldPassword, newPassword} = req.body
+    }catch(err){
+        res.status(501).json({
+            message:err.message,
+            status:"Something is wrong"
+        })
+    }
+}
+
+module.exports = { register, login ,logout, updatePassword}

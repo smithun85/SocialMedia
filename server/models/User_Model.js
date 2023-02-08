@@ -9,10 +9,7 @@ const UserSchema = new mongoose.Schema({
         type:String,
         required:[true," Please enter the name"]
     },
-    avatar:{
-        public_id:String,
-        url:String
-    },     
+        
     email:{
         type:String,
         required:[true,"Please enter the email id"],
@@ -24,6 +21,10 @@ const UserSchema = new mongoose.Schema({
         minlength:[6,"Password must be 6 character"],
         select:false   //we access all userData except then password
     },               //when we have to require password to find() then use=> findOne({...}).select("+password")
+    avatar:{
+        public_id:String,
+        url:String
+    }, 
     posts:[
         {
             type:mongoose.Schema.Types.ObjectId,
@@ -33,13 +34,13 @@ const UserSchema = new mongoose.Schema({
     followers:[
         {
             type:mongoose.Schema.Types.ObjectId,
-            ref:"Post"
+            ref:"User"
         }
     ],
     following:[
         {
             type:mongoose.Schema.Types.ObjectId,
-            ref:"Post"
+            ref:"User"
         }
     ],
      
@@ -49,7 +50,10 @@ const UserSchema = new mongoose.Schema({
 UserSchema.pre("save", async function(next) {
     const salt = await bcrypt.genSalt(10);
     const hashedpassword = await bcrypt.hash(this.password, salt);
-    this.password = hashedpassword
+    if(this.isModified("password")){
+        this.password = hashedpassword
+    }
+    
     next()
 });
 

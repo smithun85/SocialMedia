@@ -1,4 +1,5 @@
-const UserModel = require('./User_Model');
+const PostModel = require('../models/Post_Model');
+const UserModel = require('../models/User_Model');
 
 //follow and unfollow the user
 const followUser = async (req, res) => {
@@ -52,6 +53,21 @@ const followUser = async (req, res) => {
 //get the data of follower
 const getPostOfFollowing = async (req, res) => {
     try{
+
+        // const user = await UserModel.findById(req.user._id).populate("following", "posts")       
+        // res.status(201).json({
+        //     following:user.following    //it gives only following user's post's id in loggedin user
+        // })
+        //or: it gives all delails of following user's post in loggedin user
+        const user = await UserModel.findById(req.user._id)
+        const posts = await PostModel.find({
+            owner: {
+                $in: user.following     //owner and user.following matched then matched values return in array
+            },
+        });
+        res.status(200).json({
+            posts
+        })
 
     }catch(err){
         res.status(501).json({
