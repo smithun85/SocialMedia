@@ -159,39 +159,16 @@ const addCommentOnPost = async (reqs, res) => {
       });
     }
 
-    let existCommentIndex = -1;
-
-    //checking if comment already exists
-    // post.comments.forEach((item, index) => {
-    //   if(item.user.toString()===reqs.user._id.toString()){  //here search user from post's comments
-    //     existCommentIndex = index
-    //   }
-    // })
-
-    let existComment = false;
-    post.comments.forEach((item, index) => {
-      item._id;
+    post.comments.push({
+      user: reqs.user._id,
+      comment: reqs.body.comment,
     });
 
-    if (post) {
-      // if(existCommentIndex !== -1){
-      //   post.comments[existCommentIndex].comment = reqs.body.comment
-      //   await post.save()
-      //   res.status(201).json({
-      //    message:"Comment updated"
-      //   })
-    } else {
-      post.comments.push({
-        user: reqs.user._id,
-        comment: reqs.body.comment,
-      });
+    await post.save();
 
-      await post.save();
-
-      res.status(201).json({
-        message: "Comment added",
-      });
-    }
+    res.status(201).json({
+      message: "Comment added",
+    });
   } catch (err) {
     res.status(501).json({
       message: err.message,
@@ -201,83 +178,41 @@ const addCommentOnPost = async (reqs, res) => {
 };
 
 
-  //update comment in aparticular post
+//update comment in aparticular post
 const updateCommentOnPost = async (req, res) => {
-  // try {
+  try {
+    const user = await UserModel.findById(req.user._id);
 
-  //   let posts = await PostModel.findOne({_id:req.params.post_id}, 
-  //     {comments:{$elemMatch:{_id:req.params.comment_id}}},)
-
-  //     const [index] = posts.comments
-  //     if(!posts){
-  //       return res.status(401).json({
-  //         message:"post/comment not found"
-  //       })
-  //     }
-  
-  //   console.log(posts._id.toString())
-  //   console.log(req.params.post_id)
-  //   console.log(index._id.toString())
-  //   console.log(req.params.comment_id)
-
-  
-  //   if((posts._id.toString() !== req.params.post_id) || (index._id.toString() !== req.params.comment_id)){
-  //     return res.status(401).json({
-  //     message:"post/comment not found"
-  //     })
-  //   }
-   
-    
-
-  //   // await PostModel.updateOne(
-  //   //   { _id: req.params.post_id },
-  //   //   { $set: { "comments.$[c].comment": req.body.comment } },
-  //   //   { arrayFilters: [{ "c._id": req.params.comment_id }] }
-  //   // );
-
-  //   res.status(201).json({
-  //     message: "comment updated",
-  //   });
-
-  // } 
-  try{
-
-     PostModel.findOne({ _id: req.params.post_Id}, function (err, post) {
-      if (err) return res.status(401).json({
-        message:err.message,
-        status:"post not found"
-      });
-    
-      const commentIndex = post.comments.findIndex(comment => comment._id.toString() === req.params.comment_id.toString());
-      if (commentIndex === -1) return res.status(401).json({
-        message:"comment not found"
-      });
-    
-      post.comments[commentIndex].comment = req.body.comment;
-    
-      post.validate(function (error) {
-        if (error) return res.json({
-          message:error.message,
-          status:"post not validate"
+   const post = await  PostModel.findOne({ _id: req.params.post_id })
+      if (!post)
+        return res.status(401).json({
+          status: "post not found",
         });
-    
-        post.save(function (error) {
-          if (error) return res.json({
-            message:error.message,
-            status:"post not save"
-          });
-    
-          // Comment updated successfully
+
+      const commentIndex = post.comments.findIndex(
+        (comment) => comment._id.toString() === req.params.comment_id.toString()
+      );
+
+      if (commentIndex === -1) {
+        return res.status(401).json({
+          message: "comment not found",
         });
-      });
-    });
-    res.status(201).json({
-      message: "Comment updated",
-    });
+      }
+
+      if (user._id.toString() === post.comments[commentIndex].user.toString()) {
+        // post.comments[commentIndex].comment = req.body.comment;
+
+        post.save();
+        res.status(201).json({
+          message: "Comment updated successfully",
+        });
+      } else {
+        res.status(401).json({
+          message: "user not authorized",
+        });
+      }
   
-    
-  }
-  catch (err) {
+  } catch (err) {
     res.status(501).json({
       message: err.message,
       status: "something is wrong",
@@ -285,48 +220,41 @@ const updateCommentOnPost = async (req, res) => {
   }
 };
 
-
-
 //Delete the comment from a particular post
 const deleteCommentOnPost = async (req, res) => {
   try {
+    const user = await UserModel.findById(req.user._id);
 
-    let posts = await PostModel.findOne({_id:req.params.post_id}, 
-      {comments:{$elemMatch:{_id:req.params.comment_id}}},)
-
-      const [index] = posts.comments
-      if(!posts){
+    PostModel.findOne({ _id: req.params.post_id }, function (err, post) {
+      if (!post)
         return res.status(401).json({
-          message:"post/comment not found"
-        })
-      }
+          status: "post not found",
+        });
 
-      // if((posts._id.toString() !== req.params.post_id) || (index._id.toString() !== req.params.comment_id)){
-      //   return res.status(401).json({
-      //   message:"post/comment not found"
-      //   })
-      // }
+      const commentIndex = post.comments.findIndex(
+        (comment) => comment._id.toString() === req.params.comment_id.toString()
+      );
+      
+      if (commentIndex === -1)
+        return res.status(401).json({
+          message: "comment not found",
+        });
+
+        if ((user._id.toString() === post.comments[commentIndex].user.toString()) || (user._id.toString() === post.owner.toString())) {
+
+          post.comments.splice(commentIndex, 1);
+
+          post.save();
     
-    // const [i] = posts.comments
-    // console.log(i._id);
-    // if (i._id.toString() !== req.params.comment_id.toString()) {
-    //   return res.status(401).json({
-    //     message: "comment not found",
-    //   });
-    // }
-
-    // const comment = await PostModel.updateOne(
-    //   { _id: req.params.post_id },
-    //   { $pull: { comments: { _id: req.params.comment_id } } }
-    // );
-
-
-    res.status(201).json({
-      message: "comment deleted",
-      // comments:posts.comments,
-      posts,
+          res.status(201).json({
+            message: "Comment deleted successfully",
+          });
+        } else {
+          res.status(401).json({
+            message: "user not authorized",
+          });
+        }
     });
-
   } catch (error) {
     res.status(501).json({
       message: error.message,
