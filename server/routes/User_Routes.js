@@ -1,18 +1,39 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const { register, login, logout, updatePassword } = require('../controllers/User_Controller');
-const isAuthenticated = require('../middlewares/Auth');
-const { followUser } = require('../controllers/Follows');
+const {
+  register,
+  login,
+  logout,
+  updatePassword,
+  updateProfile,
+  myProfile,
+  getUserProfile,
+  getAllUsersProfile,
+  deleteProfile,
+} = require("../controllers/User_Controller");
 
-router.route('/register').post(register);
+const isAuthenticated = require("../middlewares/Auth");
+const { followUser } = require("../controllers/Follows");
 
-router.route('/login').post(login);
+router.route("/register").post(register);
 
-router.route('/logout').get(logout);
+router.route("/login").post(login);
 
-router.route('/update').patch(updatePassword);
+router.route("/logout").get(logout);
 
-router.route('/follows/:user_id').get(isAuthenticated, followUser)
+router.route("/update/password").patch(isAuthenticated, updatePassword)
+  
+router.route("/update/profile").patch(isAuthenticated, updateProfile);
+
+router.route("/follows/:user_id").get(isAuthenticated, followUser);
+
+router.route("/profile").get(isAuthenticated, myProfile)
+
+router.route("/profile/:userId").get(isAuthenticated, getUserProfile);
+
+router.route("/profiles").get(isAuthenticated, getAllUsersProfile)
+
+router.route("/delete").delete(isAuthenticated, deleteProfile)
 
 module.exports = router;

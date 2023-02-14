@@ -2,7 +2,7 @@ const PostModel = require('../models/Post_Model');
 const UserModel = require('../models/User_Model');
 
 //follow and unfollow the user
-const followUser = async (req, res) => {
+exports.followUser = async (req, res) => {
     try{
 
         const loggedInUser = await UserModel.findById(req.user._id).select('+password') //following
@@ -51,7 +51,7 @@ const followUser = async (req, res) => {
 };
 
 //get the data of follower
-const getPostOfFollowing = async (req, res) => {
+exports.getPostOfFollowing = async (req, res) => {
     try{
 
         // const user = await UserModel.findById(req.user._id).populate("following", "posts")       
@@ -77,7 +77,7 @@ const getPostOfFollowing = async (req, res) => {
     }
 }
 
-module.exports = {
-    followUser, 
-    getPostOfFollowing
-}
+// module.exports = {
+//     followUser, 
+//     getPostOfFollowing
+// }

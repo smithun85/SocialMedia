@@ -30,7 +30,7 @@ const PostSchema = new mongoose.Schema({
         },
         comment: {
             type: String,
-            require: true
+            
         }
     }]
 }, { timestamps: true});
