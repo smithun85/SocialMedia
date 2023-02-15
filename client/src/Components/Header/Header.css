@@ -1,0 +1,25 @@
+.header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header > a {
+    width: 2em;
+    height: 2em;
+    margin: 1.5em 4em;
+}
+
+.header > a > svg {
+    font-size: 1.8em;
+    transition:all .5s;
+    color: rgba(0,0,0,0.5);
+}
+
+@media screen and (max-width:600px) {
+    .header > a {
+        width: 1em;
+        height: 1em;
+        margin: 1.5em 3em;
+    }
+}
